@@ -1,0 +1,161 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class Main extends JFrame {
+
+    // Meetings for each day of the week (7 days)
+    private static final String[][][] WEEK_MEETINGS = {
+            // Monday - Unique schedule
+            {{"9:00 AM", "Team Standup Meeting", "Conference Room 1"},
+                    {"11:00 AM", "Client Call", "Zoom"},
+                    {"1:00 PM", "Project Review", "Conference Room 2"},
+                    {"3:00 PM", "Strategy Meeting", "Conference Room 1"},
+                    {"5:00 PM", "End of Day Wrap-Up", "Zoom"}},
+
+            // Tuesday - Unique schedule
+            {{"9:00 AM", "Team Standup Meeting", "Conference Room 1"},
+                    {"11:00 AM", "Client Call", "Zoom"},
+                    {"1:00 PM", "Product Demo", "Conference Room 2"},
+                    {"3:00 PM", "Strategy Planning", "Conference Room 1"},
+                    {"5:00 PM", "End of Day Wrap-Up", "Zoom"}},
+
+            // Wednesday - Unique schedule
+            {{"9:00 AM", "Team Standup Meeting", "Conference Room 1"},
+                    {"11:00 AM", "Client Call", "Zoom"},
+                    {"1:00 PM", "Sprint Review", "Conference Room 2"},
+                    {"3:00 PM", "Team Brainstorming", "Conference Room 1"},
+                    {"5:00 PM", "End of Day Wrap-Up", "Zoom"}},
+
+            // Thursday - Unique schedule
+            {{"9:00 AM", "Team Standup Meeting", "Conference Room 1"},
+                    {"11:00 AM", "Client Call", "Zoom"},
+                    {"1:00 PM", "Project Kickoff", "Conference Room 2"},
+                    {"3:00 PM", "Quarterly Strategy Meeting", "Conference Room 1"},
+                    {"5:00 PM", "End of Day Wrap-Up", "Zoom"}},
+
+            // Friday - Unique schedule
+            {{"9:00 AM", "Team Standup Meeting", "Conference Room 1"},
+                    {"11:00 AM", "Client Call", "Zoom"},
+                    {"1:00 PM", "Project Review", "Conference Room 2"},
+                    {"3:00 PM", "Team Social", "Lounge"},
+                    {"5:00 PM", "End of Week Review", "Zoom"}},
+
+            // Saturday - Same as before
+            {{"10:00 AM", "Weekend Planning", "Conference Room 1"},
+                    {"2:00 PM", "Team Brainstorming", "Conference Room 2"}},
+
+            // Sunday - Same as before
+            {{"11:00 AM", "Weekly Review", "Zoom"},
+                    {"4:00 PM", "Team Social", "Lounge"}}
+    };
+
+    private JLabel dateTimeLabel;
+    private JPanel timetablePanel;
+
+    public Main() {
+        // Setup JFrame properties
+        setTitle("One-Week Timetable");
+        setSize(800, 600);  // Size of the window
+        setLocationRelativeTo(null);  // Center the window
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());  // Use BorderLayout for organizing the components
+
+        // Create JLabel for displaying the date and time
+        dateTimeLabel = new JLabel();
+        dateTimeLabel.setFont(new Font("Arial", Font.PLAIN, 18));  // Set font and size
+        dateTimeLabel.setForeground(Color.BLACK);  // Set text color
+        add(dateTimeLabel, BorderLayout.NORTH);  // Add to the top of the window
+
+        // Create a JPanel to hold the timetable
+        timetablePanel = new JPanel();
+        timetablePanel.setLayout(new GridLayout(8, 3));  // Grid layout for the 7 days + headers
+        add(timetablePanel, BorderLayout.CENTER);
+
+        // Add column headers for Time, Meeting, and Location
+        timetablePanel.add(new JLabel("Time", JLabel.CENTER));
+        timetablePanel.add(new JLabel("Meeting", JLabel.CENTER));
+        timetablePanel.add(new JLabel("Location", JLabel.CENTER));
+
+        // Add navigation buttons for each day of the week
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+
+        String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+        for (int i = 0; i < daysOfWeek.length; i++) {
+            JButton dayButton = new JButton(daysOfWeek[i]);
+            final int index = i;  // Capture the index for this button
+
+            dayButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // When a day button is clicked, update the timetable for that day
+                    updateTimetable(index);
+                }
+            });
+
+            buttonPanel.add(dayButton);
+        }
+
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Timer to update the date and time label
+        Timer dateTimeTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Get current date and time
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMM yyyy HH:mm:ss");
+                String currentDateTime = dateFormat.format(new Date());
+                dateTimeLabel.setText("Current Date and Time: " + currentDateTime);
+            }
+        });
+
+        dateTimeTimer.start();  // Start the date and time update timer
+
+        // Initially show Monday's timetable
+        updateTimetable(0); // 0 is for Monday
+    }
+
+    // Method to update the timetable based on the selected day index
+    private void updateTimetable(int dayIndex) {
+        // Clear the previous timetable entries
+        timetablePanel.removeAll();
+
+        // Add column headers
+        timetablePanel.add(new JLabel("Time", JLabel.CENTER));
+        timetablePanel.add(new JLabel("Meeting", JLabel.CENTER));
+        timetablePanel.add(new JLabel("Location", JLabel.CENTER));
+
+        // Get the meetings for the selected day
+        String day = getDayName(dayIndex);
+
+        // Add the meeting details for the selected day
+        for (String[] meeting : WEEK_MEETINGS[dayIndex]) {
+            timetablePanel.add(new JLabel(meeting[0], JLabel.CENTER));  // Time
+            timetablePanel.add(new JLabel(meeting[1], JLabel.CENTER));  // Meeting
+            timetablePanel.add(new JLabel(meeting[2], JLabel.CENTER));  // Location
+        }
+
+        // Revalidate and repaint to update the display
+        timetablePanel.revalidate();
+        timetablePanel.repaint();
+    }
+
+    // Helper method to get the day name from index
+    private String getDayName(int index) {
+        String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        return daysOfWeek[index];
+    }
+
+    public static void main(String[] args) {
+        // Run the meeting timetable application
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new Main().setVisible(true);
+            }
+        });
+    }
+}
